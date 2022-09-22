@@ -23,6 +23,10 @@ class Map:
         self.spawn_location = (0,0)
         self.exit_location = (0,0)
     
+        # map boundaries, preload to increase performanceS
+        self.boundx = range(20)
+        self.boundy = range(30)
+    
     def map_import(self):
         try:
             with open(os.path.join(sys.path[0], self.level_list[self.level]), "r", newline='') as map:
