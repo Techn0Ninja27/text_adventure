@@ -55,6 +55,7 @@ class Map:
 class Player(Map):
     def __init__(self) -> None:
         super().__init__()
+        self.map_import()
         self.player_x, self.player_y = self.spawn_location
 
 
@@ -63,17 +64,34 @@ class Player(Map):
         self.hp = 5
         self.gold = 0
 
-        self.under_char
+        self.under_char = "s"
 
     def move_char(self,x,y):
-        self.map[self.player_y][self.player_x] = " "
+        try:
+            self.map[self.player_y][self.player_x] = self.under_char
+            self.under_char = self.map[y][x]
+            self.map[y][x] = "@"
+        except IndexError:
+            pass
         
+            
 
 
 
 
-map = Map()
-map.map_import()
-map.print_map()
+game = Player()
 
+game.print_map()
+print(game.spawn_location)
+print(game.player_x,game.player_y)
+print(game.under_char)
+game.map[game.player_y][game.player_x] = game.under_char
+print(game.under_char)
+game.print_map()
+while True:
+    x = int(input("x "))
+    y = int(input("y "))
+    game.move_char(x,y)
+    game.print_map()
+    
 
