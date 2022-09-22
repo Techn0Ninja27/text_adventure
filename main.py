@@ -22,7 +22,7 @@ class Map:
 
         self.spawn_location = (0,0)
         self.exit_location = (0,0)
-    
+
         # map boundaries, preload to increase performanceS
         self.boundx = range(20)
         self.boundy = range(30)
@@ -79,17 +79,17 @@ class Player(Map):
 
     def move_char(self,x,y):
         if x in self.boundx and y in self.boundy:
-        try:
-            self.map[self.player_y][self.player_x] = self.under_char
-            self.under_char = self.map[y][x]
-            self.map[y][x] = "@"
+            try:
+                self.map[self.player_y][self.player_x] = self.under_char
+                self.under_char = self.map[y][x]
+                self.map[y][x] = "@"
                 self.player_x,self.player_y = x,y
                 
-        except IndexError:
-            pass
+            except IndexError:
+                pass
         else:
             raise OutOfBounds("Coords out of bounds")
-        
+            
             
 
 
@@ -98,12 +98,7 @@ class Player(Map):
 game = Player()
 
 game.print_map()
-print(game.spawn_location)
-print(game.player_x,game.player_y)
-print(game.under_char)
-game.map[game.player_y][game.player_x] = game.under_char
-print(game.under_char)
-game.print_map()
+
 while True:
     x = int(input("x "))
     y = int(input("y "))
