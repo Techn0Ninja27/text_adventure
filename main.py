@@ -2,6 +2,13 @@ import csv
 import os
 import sys
 
+class OutOfBounds(Exception):
+    pass
+
+
+
+
+
 #os.path.join(sys.path[0], "data\charData.csv")
 class Map:
     def __init__(self) -> None:
