@@ -4,7 +4,7 @@ border,border,,,,,,,,,,river,,,wall,,,,border,border
 border,border,,,,,,,,,,river,,,wall,,machete,,border,border
 border,border,,,,tree,,,,,,river,,,wall,,,,border,border
 border,border,,,,,,axe,,,,river,,,wall,locked door,wall,wall,border,border
-border,border,,,,,,,,,,river,,,,goblin,,,border,border
+border,border,,,,,,,,,,river,,,,,,,border,border
 border,border,,,,tree,,,,,,river,,,,,,,border,border
 border,border,,,,,,,,,,river,river,,,,,,border,border
 border,border,,,,,,,,,,,river,,,,,,border,border
@@ -24,7 +24,7 @@ border,border,,,,,,,,,,river,river,,,,,,border,border
 border,border,,,,rope,,,,,,river,river,,bush,bush,bush,bush,border,border
 border,border,,,,,,,,,,river,river,,bush,,,,border,border
 border,border,,,,,,,,,,river,river,,bush,,,,exit,border
-border,border,,,,,,,,,,river,river,,bush,,,,border,border
+border,border,key,,,,,,,,,river,river,,bush,,,,border,border
 border,border,,,,,,,,,,,,,bush,,,,border,border
 border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border
 border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border,border
