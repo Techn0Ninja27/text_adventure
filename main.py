@@ -46,9 +46,9 @@ class Map:
         for y, row in enumerate(self.map):
             for x, obj in enumerate(row):
                 if obj == "s":
-                    self.spawn_location = (y,x)
+                    self.spawn_location = (x,y)
                 elif obj == "E":
-                    self.exit_location = (y,x)
+                    self.exit_location = (x,y)
 
 
         # places char at spawn
@@ -78,12 +78,17 @@ class Player(Map):
         self.under_char = "s"
 
     def move_char(self,x,y):
+        if x in self.boundx and y in self.boundy:
         try:
             self.map[self.player_y][self.player_x] = self.under_char
             self.under_char = self.map[y][x]
             self.map[y][x] = "@"
+                self.player_x,self.player_y = x,y
+                
         except IndexError:
             pass
+        else:
+            raise OutOfBounds("Coords out of bounds")
         
             
 
