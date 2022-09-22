@@ -1,6 +1,17 @@
 import csv
 import os
 import sys
+from dataclasses import dataclass
+
+@dataclass
+class InvItem:
+    name: str
+    lore: str
+    quantity: int
+    attributes: list
+
+    def __str__(self) -> str:
+        return self.lore
 
 class OutOfBounds(Exception):
     pass
@@ -62,6 +73,23 @@ class Map:
                 string +=j
             print(string)
 
+class Lore:
+    def __init__(self) -> None:
+        self.item_descs = {}
+        self.map_descs = {}
+
+
+        with open(os.path.join(sys.path[0], "map_data\\item_desc.txt"), "r") as items:
+            for line in items:
+                name, description = line.rstrip("\n").split("=")
+                self.item_descs[name] = description
+
+        with open(os.path.join(sys.path[0], "map_data\\map_desc.txt")) as maps:
+            for line in maps:
+                name, description = line.rstrip("\n").split("=")
+                self.map_descs[name] = description
+            print(self.map_descs)
+
 
 class Player(Map):
     def __init__(self) -> None:
@@ -89,6 +117,11 @@ class Player(Map):
                 pass
         else:
             raise OutOfBounds("Coords out of bounds")
+
+    def item_pickup(self,name):
+        pass
+
+
             
             
 
@@ -97,12 +130,11 @@ class Player(Map):
 
 game = Player()
 
-game.print_map()
 
-while True:
-    x = int(input("x "))
-    y = int(input("y "))
-    game.move_char(x,y)
-    game.print_map()
+#while True:
+ #   x = int(input("x "))
+  #  y = int(input("y "))
+   # game.move_char(x,y)
+    #game.print_map()
     
-
+lore = Lore()
