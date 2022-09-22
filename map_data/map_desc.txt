@@ -1,0 +1,3 @@
+=The plain emptiness fills you with peace.
+door=It's a door, who knows where it leads.
+sword=An old sword, yet still sharper than you.

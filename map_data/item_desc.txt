@@ -1,3 +1,5 @@
-=The plain emptiness fills you with peace.
-door=It's a door, who knows where it leads.
-sword=An old sword, yet still sharper than you.
+sword=an old sword, it feels light
+shield=worn shield, covered in the scars of battle
+axe=rusted axe
+key=a key, who knows what it may open
+machete=large knife, can be used to clear bush.
