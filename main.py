@@ -2,6 +2,7 @@ import csv
 import os
 import sys
 from dataclasses import dataclass
+from terminaltables import AsciiTable
 
 
 @dataclass
@@ -234,16 +235,59 @@ class Player(Map, Lore):
 
         return description
 
+    def surrounding_describe(self, x, y):
+        """Prints table of descriptions of surroundings
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+
+        Raises:
+            OutOfBounds: x or y out of map
+        """
+        if not((x in self.boundx) and (y in self.boundy)):
+            raise OutOfBounds
+            return
+
+        data = [["" for i in range(3)] for j in range(3)]
+
+        # i cant figure out a smart way to do this
+
+        try:
+            data[1][1] = self.describe(x, y)
+        except OutOfBounds:
+            pass
+        try:
+            data[0][1] = self.describe(x, y-1)
+        except OutOfBounds:
+            pass
+        try:
+            data[2][1] = self.describe(x, y+1)
+        except OutOfBounds:
+            pass
+        try:
+            data[1][0] = self.describe(x-1, y)
+        except OutOfBounds:
+            pass
+        try:
+            data[1][2] = self.describe(x+1, y)
+        except OutOfBounds:
+            pass
+
+        # ascii table
+        table = AsciiTable(data)
+        table.inner_column_border = True
+        table.inner_row_border = True
+        print(table.table)
+
 
 game = Player()
-test_item = InvItem("test", "test item", 1, ["test"])
 
-game.inventory.append(test_item)
 
 game.item_pickup("test")
 print(game.inventory)
 while True:
     x = int(input("x "))
     y = int(input("y "))
-    print(game.describe(x, y))
-    game.print_map()
+    game.surrounding_describe(x, y)
+#    game.print_map()
