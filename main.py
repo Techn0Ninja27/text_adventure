@@ -46,7 +46,7 @@ class Map:
             with open(os.path.join(sys.path[0], self.level_list[self.level]), "r", newline='') as map:
                 # imports csv map using current level
                 map_csv = csv.reader(map, dialect="excel")
-                # gen csv obj
+                # generate csv obj
 
                 # iter through array, place each object into list in memory
                 for y, line in enumerate(map_csv):
@@ -94,6 +94,7 @@ class Lore:
                 name, description = line.rstrip("\n").split("=")
                 self.map_descs[name] = description
 
+        # list of items and the map objects they can break
         self.can_break = {"axe": "T", "machete": "u", "key": "D"}
 
 
@@ -103,6 +104,7 @@ class Player(Map, Lore):
         Lore.__init__(self)
         self.map_import()
 
+        # sets player coordinates to spawn location
         self.player_x, self.player_y = self.spawn_location
 
         # player stats
@@ -110,6 +112,7 @@ class Player(Map, Lore):
         self.hp = 5
         self.gold = 0
 
+        # keeps the map object which the character is currently on
         self.under_char = "s"
 
     def move_char(self, x, y):
@@ -122,16 +125,22 @@ class Player(Map, Lore):
         Raises:
             OutOfBounds: x or y out of map bounds
         """
-        if x in self.boundx and y in self.boundy:
+        # if x and y are within map bounds
+        if (x in self.boundx) and (y in self.boundy):
             try:
+                # removes character from map, replacing what was under
                 self.map[self.player_y][self.player_x] = self.under_char
+                # then sets under_char to object at new position
                 self.under_char = self.map[y][x]
+                # places character at new location
                 self.map[y][x] = "@"
+                # changes player coords
                 self.player_x, self.player_y = x, y
 
             except IndexError:
                 pass
         else:
+            # raises custom exception
             raise OutOfBounds("Coords out of bounds")
 
     def move_check(self, x, y):
@@ -148,10 +157,14 @@ class Player(Map, Lore):
             bool: point passability
         """
         try:
+            # checks if map object is in list of impassable objects
+            # returns true or false
             if self.map[y][x] in self.impassable:
                 return False
             else:
                 return True
+
+        # catches IndexErrors, when x or y is outside of map
         except IndexError:
             raise OutOfBounds("coordinates out of map bounds")
 
@@ -161,28 +174,36 @@ class Player(Map, Lore):
         Args:
             name (str): name of item
         """
-
+        # declare variables
         can_break = []
         item_desc = ""
 
+        # checks if item is in inventory
         item_in_inventory = False
         for i, item in enumerate(self.inventory):
+
             if item.name == name:
+                # increments quantity of item by 1
                 item_in_inventory = True
                 self.inventory[i].quantity += 1
 
+        # if item not in inv
         if item_in_inventory is False:
+            # gets item description
             try:
                 item_desc = self.item_descs[name]
             except KeyError:
                 item_desc = "MISSING"
 
-        if name in self.can_break:
-            can_break.append(self.can_break[name])
+            # if item has can break attribute
+            if name in self.can_break:
+                can_break.append(self.can_break[name])
 
-        picked_item = InvItem(name, item_desc, 1, can_break)
+            # creates InvItem object using collected info
+            picked_item = InvItem(name, item_desc, 1, can_break)
 
-        self.inventory.append(picked_item)
+            # appends object to inventory
+            self.inventory.append(picked_item)
 
     def describe(self, x, y):
         """Describes point on map
@@ -199,15 +220,18 @@ class Player(Map, Lore):
         """
         item = ""
         description = "MISSING"
+        # finds item on map, if item out of bounds, raises out of bounds
         try:
             item = self.map[y][x]
         except IndexError:
             raise OutOfBounds
 
+        # retrieves item description from map_descs dict
         try:
             description = self.map_descs[item]
         except KeyError:
             pass
+
         return description
 
 
