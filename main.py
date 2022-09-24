@@ -127,12 +127,38 @@ class Player(Map,Lore):
             raise OutOfBounds("Coords out of bounds")
 
     def item_pickup(self,name):
+        """Generates InvItem object and appends to inventory
+
+        Args:
+            name (str): name of item
+        """
+
+        can_break = []
+        item_desc = ""
+
+
+
+        item_in_inventory = False
         for i, item in enumerate(self.inventory):
             if item.name == name:
+                item_in_inventory = True
                 self.inventory[i].quantity += 1
 
+        if item_in_inventory is False:
         try:
             item_desc = self.item_descs[name]
+            except KeyError:
+                item_desc = "MISSING"
+        
+        if name in self.can_break:
+            can_break.append(self.can_break[name])
+        
+        picked_item = InvItem(name,item_desc,1,can_break)
+
+        self.inventory.append(picked_item)
+            
+
+    
     def describe(self,x,y):
         """Describes point on map
 
