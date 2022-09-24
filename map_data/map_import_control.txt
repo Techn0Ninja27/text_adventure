@@ -20,3 +20,4 @@ bush=u
 exit=E
 shield=?
 chest=C
+key=K
