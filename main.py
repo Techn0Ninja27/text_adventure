@@ -8,7 +8,7 @@ class InvItem:
     name: str
     lore: str
     quantity: int
-    attributes: list
+    can_break: list
 
     def __str__(self) -> str:
         return self.lore
@@ -24,6 +24,7 @@ class OutOfBounds(Exception):
 class Map:
     def __init__(self) -> None:
 
+
         self.map = [["" for j in range(20)] for i in range(30)] # generate 2d array for map
         
         self.level = 1 # init level
@@ -37,7 +38,7 @@ class Map:
         # map boundaries, preload to increase performanceS
         self.boundx = range(20)
         self.boundy = range(30)
-    
+
         self.impassable = ["b","w",'W',"D","u","r","p","T"]
     
     def map_import(self):
@@ -77,8 +78,11 @@ class Map:
 
 class Lore:
     def __init__(self) -> None:
+        # item name and description 
         self.item_descs = {}
         self.map_descs = {}
+
+        # loads descriptions for items and the map
 
 
         with open(os.path.join(sys.path[0], "map_data\\item_desc.txt"), "r") as items:
@@ -93,6 +97,8 @@ class Lore:
 
 
         self.can_break = {"axe":"T","machete":"u","key":"D"}
+
+        
 
     
 
@@ -114,6 +120,15 @@ class Player(Map,Lore):
         self.under_char = "s"
 
     def move_char(self,x,y):
+        """moves character to point on map
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+
+        Raises:
+            OutOfBounds: x or y out of map bounds
+        """
         if x in self.boundx and y in self.boundy:
             try:
                 self.map[self.player_y][self.player_x] = self.under_char
@@ -125,6 +140,32 @@ class Player(Map,Lore):
                 pass
         else:
             raise OutOfBounds("Coords out of bounds")
+
+
+    def move_check(self,x,y):
+        """checks if point in map is passable
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+
+        Raises:
+            OutOfBounds: If x or y is outside of map area
+
+        Returns:
+            bool: point passability
+        """
+        try:
+            if self.map[y][x] in self.impassable:
+                return False
+            else:
+                return True
+        except IndexError:
+            raise OutOfBounds("coordinates out of map bounds")
+        
+
+
+
 
     def item_pickup(self,name):
         """Generates InvItem object and appends to inventory
@@ -145,8 +186,8 @@ class Player(Map,Lore):
                 self.inventory[i].quantity += 1
 
         if item_in_inventory is False:
-        try:
-            item_desc = self.item_descs[name]
+            try:
+                item_desc = self.item_descs[name]
             except KeyError:
                 item_desc = "MISSING"
         
@@ -187,6 +228,8 @@ class Player(Map,Lore):
 
 
 
+
+
             
             
 
@@ -203,7 +246,7 @@ print(game.inventory)
 while True:
     x = int(input("x "))
     y = int(input("y "))
-    game.move_char(x,y)
+    print(game.describe(x,y))
     game.print_map()
 
 
