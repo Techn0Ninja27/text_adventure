@@ -31,6 +31,8 @@ class Map:
         self.level_list = {1: "map_data\\level_1\\level1_imported.csv",
                            2: "map_data\\level_2\\level2.csv"}  # list of levels and file paths
 
+        self.last_level = 1
+
         # declare tuples for important map locations
 
         self.spawn_location = (0, 0)
@@ -41,6 +43,9 @@ class Map:
         self.boundy = range(30)
 
         self.impassable = ["b", "w", 'W', "D", "u", "r", "p", "T"]
+
+        # map object : item name
+        self.pick_able = {"$":"sword","K":"key","&":"machete","8":"axe","?":"shield","R":"rope"}
 
     def map_import(self):
         try:
@@ -66,7 +71,7 @@ class Map:
                     self.exit_location = (x, y)
 
         # places char at spawn
-        self.map[self.spawn_location[0]][self.spawn_location[1]] = "@"
+        self.map[self.spawn_location[1]][self.spawn_location[0]] = "@"
 
     # prints map, debug only
     def print_map(self):
@@ -96,7 +101,7 @@ class Lore:
                 self.map_descs[name] = description
 
         # list of items and the map objects they can break
-        self.can_break = {"axe": "T", "machete": "u", "key": "D"}
+        self.can_break = {"axe": "T", "machete": "u", "key": "D","rope":"p"}
 
 
 class Player(Map, Lore):
@@ -151,8 +156,6 @@ class Player(Map, Lore):
             x (int): x coordinate
             y (int): y coordinate
 
-        Raises:
-            OutOfBounds: If x or y is outside of map area
 
         Returns:
             bool: point passability
@@ -165,11 +168,11 @@ class Player(Map, Lore):
             else:
                 return True
 
-        # catches IndexErrors, when x or y is outside of map
+        # cannot move to spot if outside map
         except IndexError:
-            raise OutOfBounds("coordinates out of map bounds")
+            return False
 
-    def item_pickup(self, name):
+    def item_add_to_inv(self, name):
         """Generates InvItem object and appends to inventory
 
         Args:
@@ -235,6 +238,26 @@ class Player(Map, Lore):
 
         return description
 
+    def describe_direct(self,obj):
+        """Directly describes map object
+
+        Args:
+            obj (str): map_object
+
+        Returns:
+            str: object description
+        """
+
+        # describes objects on the map directly
+        try:
+            description = self.map_descs[obj]
+        except KeyError:
+            description = "MISSING"
+
+        return description
+
+
+
     def surrounding_describe(self, x, y):
         """Prints table of descriptions of surroundings
 
@@ -245,6 +268,8 @@ class Player(Map, Lore):
         Raises:
             OutOfBounds: x or y out of map
         """
+
+        # checks if x and y are within map boundaries
         if not((x in self.boundx) and (y in self.boundy)):
             raise OutOfBounds
             return
@@ -252,9 +277,10 @@ class Player(Map, Lore):
         data = [["" for i in range(3)] for j in range(3)]
 
         # i cant figure out a smart way to do this
+        # basicaly it just goes and makes a grid of descriptions
 
         try:
-            data[1][1] = self.describe(x, y)
+            data[1][1] = self.describe_direct(self.under_char)
         except OutOfBounds:
             pass
         try:
@@ -280,14 +306,261 @@ class Player(Map, Lore):
         table.inner_row_border = True
         print(table.table)
 
+    def avaliable_moves(self,x,y):
+        """prints and returns all possible moves at location
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+
+        Raises:
+            OutOfBounds: out of map bounds
+
+        Returns:
+            list: list of possible moves
+        """
+        if not((x in self.boundx) and (y in self.boundy)):
+            raise OutOfBounds
+            return
+
+    
+        # declare list
+        avaliable_move = []
+
+
+        # checks cardinal directions for passability
+        if self.move_check(x,y-1) is True:
+            avaliable_move.append("north")
+        if self.move_check(x+1,y) is True:
+            avaliable_move.append("east")
+        if self.move_check(x,y+1) is True:
+            avaliable_move.append("south")
+        if self.move_check(x-1,y) is True:
+            avaliable_move.append("west")
+
+        # checks if object under character can be picked up
+        if self.under_char in self.pick_able:
+            avaliable_move.append(f"pick")
+
+
+        # checks items in inventory
+        # checks for the items that can be broken by that item in the cardinal directions
+        for item in self.inventory:
+            if item.can_break:
+                breakable_obj = self.can_break[item.name]
+                if (self.map[y-1][x]== breakable_obj) or (self.map[y+1][x]== breakable_obj) or (self.map[y][x-1]== breakable_obj) or (self.map[y][x+1]== breakable_obj):
+                    avaliable_move.append("break")
+
+
+        # prints moves
+        print("Avaliable Moves")
+        for i in avaliable_move:
+            print(i)
+
+        return avaliable_move
+        
+        
+
+    def pick_item(self):
+        """Takes item from under char to inventory
+        """
+        self.item_add_to_inv(self.pick_able[self.under_char])
+        self.under_char = " "
+    
+    def break_item(self,x,y):
+        """breaks object with item
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+        """
+        for item in self.inventory:
+            if item.can_break:
+                breakable_obj = self.can_break[item.name]
+                if self.map[y-1][x] == breakable_obj:
+                    self.map[y-1][x] = " "
+                if self.map[y+1][x] == breakable_obj:
+                    self.map[y+1][x] = " "
+                if self.map[y][x-1] == breakable_obj:
+                    self.map[y][x-1] = " "
+                if self.map[y][x+1] == breakable_obj:
+                    self.map[y][x+1] = " "
+                    
+    def inventory_view(self):
+        """prints inventory contents and their tags
+        """
+        for i in self.inventory:
+            print(f"{i.name}: {i.lore}. Quantity: {i.quantity}. Can break{i.can_break}")
+    def user_input(self):
+        """takes turn input from user
+
+        Returns:
+            str: move
+        """
+        while True:
+            # while true to prevent wrong information from breaking game
+            print("Turn")
+            move = input("")
+
+
+            # cheat codes
+
+            # item give
+            if move == "ITEM":
+                item_give = input("ITEM NAME: ")
+                self.item_add_to_inv(item_give)
+
+            # teleport
+            elif move == "TP":
+                while True:
+                    while True:
+                        try:
+                            x = int(input("x: "))
+                            y = int(input("y: "))
+                        except ValueError:
+                            pass
+                        else:
+                            break
+                    try:
+                        self.move_char(x,y)
+                    except OutOfBounds:
+                        print("out of bounds")
+                    else:
+                        break
+
+
+            # prevent empty strings
+            try:
+                move[0]
+            except IndexError:
+                move = " "
+
+            # makes input lowercase
+            move = move.lower()
+
+            # checks moves and returns
+            if move[0] == "n":
+                return "n"
+                break
+            elif move[0] == "e":
+                return "e"
+                break
+            elif move[0] == "s":
+                return "s"
+                break
+            elif move[0] == "w":
+                return "w"
+                break
+            elif move[0] == "p":
+                return "p"
+                break
+            elif move[0] == "b":
+                return "b"
+                break
+
+            
+            print("unsupported move")
+
+    
+
+    def turn(self):
+        """Single game turn
+        """
+    
+
+        # prints map
+        print()
+        self.print_map()
+
+        # surroundings
+        print()
+        print("Your Surroundings")
+        self.surrounding_describe(self.player_x,self.player_y)
+        
+
+        # inventory
+        print("inventory:")
+        self.inventory_view()
+        
+
+        # prints avaliable moves
+        print()
+        move_options = self.avaliable_moves(self.player_x,self.player_y)
+
+
+        # takes user input
+        move = self.user_input()
+
+        # legit just a switch case
+        if "north" in move_options:
+            if move == ("n"):
+                self.move_char(self.player_x,self.player_y-1)
+        if "west" in move_options:
+            if move == "w":
+                self.move_char(self.player_x-1,self.player_y)
+        if "south" in move_options:
+            if move == "s":
+                self.move_char(self.player_x,self.player_y+1)
+        if "east" in move_options:
+            if move ==  "e":
+                self.move_char(self.player_x+1,self.player_y)
+        if "pick" in move_options:
+            if move == "p":
+                self.pick_item()
+        if "break" in move_options:
+            if move == "b":
+                self.break_item(self.player_x,self.player_y)
+
+        
+    def level_up(self):
+        """increases level
+        """
+
+        # increments level
+        self.level += 1
+        # imports new map
+        self.map_import()
+        # sets new player spawn location
+        self.player_x,self.player_y = self.spawn_location
+        print()
+        print(f"level {self.level}")
+        print()
+    
+    def play(self):
+        """plays game
+        """
+        print("             _                 _                   ")
+        print("    /\      | |               | |                  ")
+        print("   /  \   __| |_   _____ _ __ | |_ _   _ _ __ ___  ")
+        print("  / /\ \ / _` \ \ / / _ \ '_ \| __| | | | '__/ _ \ ")
+        print(" / ____ \ (_| |\ V /  __/ | | | |_| |_| | | |  __/ ")
+        print("/_/    \_\__,_| \_/ \___|_| |_|\__|\__,_|_|  \___| ")
+
+        while True:
+            while True:
+                if self.under_char == "E":
+                    break
+                else:
+                    self.turn()
+            self.level_up()
+            if self.level > self.last_level:
+                break
+                
+        print("          _______                      _______  _        _ ")
+        print("|\     /|(  ___  )|\     /|  |\     /|(  ___  )( (    /|( )")
+        print("( \   / )| (   ) || )   ( |  | )   ( || (   ) ||  \  ( || |")
+        print(" \ (_) / | |   | || |   | |  | | _ | || |   | ||   \ | || |")
+        print("  \   /  | |   | || |   | |  | |( )| || |   | || (\ \) || |")
+        print("   ) (   | |   | || |   | |  | || || || |   | || | \   |(_)")
+        print("   | |   | (___) || (___) |  | () () || (___) || )  \  | _ ")
+        print("   \_/   (_______)(_______)  (_______)(_______)|/    )_)(_)")
+                                                           
+
+
+            
+
 
 game = Player()
 
 
-game.item_pickup("test")
-print(game.inventory)
-while True:
-    x = int(input("x "))
-    y = int(input("y "))
-    game.surrounding_describe(x, y)
-#    game.print_map()
+game.play()
