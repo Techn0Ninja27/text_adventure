@@ -133,10 +133,31 @@ class Player(Map,Lore):
 
         try:
             item_desc = self.item_descs[name]
+    def describe(self,x,y):
+        """Describes point on map
+
+        Args:
+            x (int): x coordinate
+            y (int): y coordinate
+
+        Raises:
+            OutOfBounds: x or y out of map area
+
+        Returns:
+            str: description of point
+        """
+        item = ""
+        description = "MISSING"
+        try:
+            item = self.map[y][x]
+        except IndexError:
+            raise OutOfBounds
+        
+        try:
+            description = self.map_descs[item]
         except KeyError:
-            raise ItemNotFound
-        else:
             pass
+        return description
 
 
 
