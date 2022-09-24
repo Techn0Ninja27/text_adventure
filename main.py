@@ -3,6 +3,7 @@ import os
 import sys
 from dataclasses import dataclass
 
+
 @dataclass
 class InvItem:
     name: str
@@ -13,44 +14,43 @@ class InvItem:
     def __str__(self) -> str:
         return self.lore
 
+
 class OutOfBounds(Exception):
     pass
-
-
-
 
 
 #os.path.join(sys.path[0], "data\charData.csv")
 class Map:
     def __init__(self) -> None:
 
+        # generate 2d array for map
+        self.map = [["" for j in range(20)] for i in range(30)]
 
-        self.map = [["" for j in range(20)] for i in range(30)] # generate 2d array for map
-        
-        self.level = 1 # init level
-        self.level_list = {1:"map_data\\level_1\\level1_imported.csv",2:"map_data\\level_2\\level2.csv"} # list of levels and file paths
+        self.level = 1  # init level
+        self.level_list = {1: "map_data\\level_1\\level1_imported.csv",
+                           2: "map_data\\level_2\\level2.csv"}  # list of levels and file paths
 
         # declare tuples for important map locations
 
-        self.spawn_location = (0,0)
-        self.exit_location = (0,0)
+        self.spawn_location = (0, 0)
+        self.exit_location = (0, 0)
 
         # map boundaries, preload to increase performanceS
         self.boundx = range(20)
         self.boundy = range(30)
 
-        self.impassable = ["b","w",'W',"D","u","r","p","T"]
-    
+        self.impassable = ["b", "w", 'W', "D", "u", "r", "p", "T"]
+
     def map_import(self):
         try:
             with open(os.path.join(sys.path[0], self.level_list[self.level]), "r", newline='') as map:
                 # imports csv map using current level
-                map_csv = csv.reader(map,dialect="excel")
+                map_csv = csv.reader(map, dialect="excel")
                 # gen csv obj
 
                 # iter through array, place each object into list in memory
                 for y, line in enumerate(map_csv):
-                    
+
                     for x, obj in enumerate(line):
                         self.map[y][x] = obj
         except KeyError:
@@ -60,10 +60,9 @@ class Map:
         for y, row in enumerate(self.map):
             for x, obj in enumerate(row):
                 if obj == "s":
-                    self.spawn_location = (x,y)
+                    self.spawn_location = (x, y)
                 elif obj == "E":
-                    self.exit_location = (x,y)
-
+                    self.exit_location = (x, y)
 
         # places char at spawn
         self.map[self.spawn_location[0]][self.spawn_location[1]] = "@"
@@ -71,19 +70,19 @@ class Map:
     # prints map, debug only
     def print_map(self):
         for i in self.map:
-            string=""
+            string = ""
             for j in i:
-                string +=j
+                string += j
             print(string)
+
 
 class Lore:
     def __init__(self) -> None:
-        # item name and description 
+        # item name and description
         self.item_descs = {}
         self.map_descs = {}
 
         # loads descriptions for items and the map
-
 
         with open(os.path.join(sys.path[0], "map_data\\item_desc.txt"), "r") as items:
             for line in items:
@@ -95,22 +94,16 @@ class Lore:
                 name, description = line.rstrip("\n").split("=")
                 self.map_descs[name] = description
 
-
-        self.can_break = {"axe":"T","machete":"u","key":"D"}
-
-        
-
-    
+        self.can_break = {"axe": "T", "machete": "u", "key": "D"}
 
 
-class Player(Map,Lore):
+class Player(Map, Lore):
     def __init__(self) -> None:
         Map.__init__(self)
         Lore.__init__(self)
         self.map_import()
-        
-        self.player_x, self.player_y = self.spawn_location
 
+        self.player_x, self.player_y = self.spawn_location
 
         # player stats
         self.inventory = []
@@ -119,7 +112,7 @@ class Player(Map,Lore):
 
         self.under_char = "s"
 
-    def move_char(self,x,y):
+    def move_char(self, x, y):
         """moves character to point on map
 
         Args:
@@ -134,15 +127,14 @@ class Player(Map,Lore):
                 self.map[self.player_y][self.player_x] = self.under_char
                 self.under_char = self.map[y][x]
                 self.map[y][x] = "@"
-                self.player_x,self.player_y = x,y
-                
+                self.player_x, self.player_y = x, y
+
             except IndexError:
                 pass
         else:
             raise OutOfBounds("Coords out of bounds")
 
-
-    def move_check(self,x,y):
+    def move_check(self, x, y):
         """checks if point in map is passable
 
         Args:
@@ -162,12 +154,8 @@ class Player(Map,Lore):
                 return True
         except IndexError:
             raise OutOfBounds("coordinates out of map bounds")
-        
 
-
-
-
-    def item_pickup(self,name):
+    def item_pickup(self, name):
         """Generates InvItem object and appends to inventory
 
         Args:
@@ -176,8 +164,6 @@ class Player(Map,Lore):
 
         can_break = []
         item_desc = ""
-
-
 
         item_in_inventory = False
         for i, item in enumerate(self.inventory):
@@ -190,17 +176,15 @@ class Player(Map,Lore):
                 item_desc = self.item_descs[name]
             except KeyError:
                 item_desc = "MISSING"
-        
+
         if name in self.can_break:
             can_break.append(self.can_break[name])
-        
-        picked_item = InvItem(name,item_desc,1,can_break)
+
+        picked_item = InvItem(name, item_desc, 1, can_break)
 
         self.inventory.append(picked_item)
-            
 
-    
-    def describe(self,x,y):
+    def describe(self, x, y):
         """Describes point on map
 
         Args:
@@ -219,21 +203,12 @@ class Player(Map,Lore):
             item = self.map[y][x]
         except IndexError:
             raise OutOfBounds
-        
+
         try:
             description = self.map_descs[item]
         except KeyError:
             pass
         return description
-
-
-
-
-
-            
-            
-
-
 
 
 game = Player()
@@ -246,7 +221,5 @@ print(game.inventory)
 while True:
     x = int(input("x "))
     y = int(input("y "))
-    print(game.describe(x,y))
+    print(game.describe(x, y))
     game.print_map()
-
-
