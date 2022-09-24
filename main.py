@@ -522,9 +522,7 @@ class Player(Map, Lore):
         self.map_import()
         # sets new player spawn location
         self.player_x,self.player_y = self.spawn_location
-        print()
-        print(f"level {self.level}")
-        print()
+        
     
     def play(self):
         """plays game
@@ -545,6 +543,10 @@ class Player(Map, Lore):
             self.level_up()
             if self.level > self.last_level:
                 break
+            
+            print()
+            print(f"level {self.level}")
+            print()
                 
         print("          _______                      _______  _        _ ")
         print("|\     /|(  ___  )|\     /|  |\     /|(  ___  )( (    /|( )")
