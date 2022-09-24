@@ -16,7 +16,8 @@ class InvItem:
 class OutOfBounds(Exception):
     pass
 
-
+class ItemNotFound(Exception):
+    pass
 
 
 
@@ -88,18 +89,24 @@ class Lore:
             for line in maps:
                 name, description = line.rstrip("\n").split("=")
                 self.map_descs[name] = description
-            print(self.map_descs)
 
 
-class Player(Map):
+        self.can_break = {"axe":"T","machete":"u","key":"D"}
+
+    
+
+
+class Player(Map,Lore):
     def __init__(self) -> None:
-        super().__init__()
+        Map.__init__(self)
+        Lore.__init__(self)
         self.map_import()
+        
         self.player_x, self.player_y = self.spawn_location
 
 
         # player stats
-        self.items = []
+        self.inventory = []
         self.hp = 5
         self.gold = 0
 
@@ -119,7 +126,17 @@ class Player(Map):
             raise OutOfBounds("Coords out of bounds")
 
     def item_pickup(self,name):
-        pass
+        for i, item in enumerate(self.inventory):
+            if item.name == name:
+                self.inventory[i].quantity += 1
+
+        try:
+            item_desc = self.item_descs[name]
+        except KeyError:
+            raise ItemNotFound
+        else:
+            pass
+
 
 
             
@@ -129,12 +146,16 @@ class Player(Map):
 
 
 game = Player()
+test_item = InvItem("test", "test item", 1, ["test"])
+
+game.inventory.append(test_item)
+
+game.item_pickup("test")
+print(game.inventory)
+while True:
+    x = int(input("x "))
+    y = int(input("y "))
+    game.move_char(x,y)
+    game.print_map()
 
 
-#while True:
- #   x = int(input("x "))
-  #  y = int(input("y "))
-   # game.move_char(x,y)
-    #game.print_map()
-    
-lore = Lore()
