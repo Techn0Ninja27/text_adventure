@@ -16,8 +16,7 @@ class InvItem:
 class OutOfBounds(Exception):
     pass
 
-class ItemNotFound(Exception):
-    pass
+
 
 
 
