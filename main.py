@@ -45,7 +45,8 @@ class Map:
         self.impassable = ["b", "w", 'W', "D", "u", "r", "p", "T"]
 
         # map object : item name
-        self.pick_able = {"$":"sword","K":"key","&":"machete","8":"axe","?":"shield","R":"rope"}
+        self.pick_able = {"$": "sword", "K": "key",
+                          "&": "machete", "8": "axe", "?": "shield", "R": "rope"}
 
     def map_import(self):
         try:
@@ -101,7 +102,7 @@ class Lore:
                 self.map_descs[name] = description
 
         # list of items and the map objects they can break
-        self.can_break = {"axe": "T", "machete": "u", "key": "D","rope":"p"}
+        self.can_break = {"axe": "T", "machete": "u", "key": "D", "rope": "p"}
 
 
 class Player(Map, Lore):
@@ -238,7 +239,7 @@ class Player(Map, Lore):
 
         return description
 
-    def describe_direct(self,obj):
+    def describe_direct(self, obj):
         """Directly describes map object
 
         Args:
@@ -255,8 +256,6 @@ class Player(Map, Lore):
             description = "MISSING"
 
         return description
-
-
 
     def surrounding_describe(self, x, y):
         """Prints table of descriptions of surroundings
@@ -306,7 +305,7 @@ class Player(Map, Lore):
         table.inner_row_border = True
         print(table.table)
 
-    def avaliable_moves(self,x,y):
+    def avaliable_moves(self, x, y):
         """prints and returns all possible moves at location
 
         Args:
@@ -323,34 +322,30 @@ class Player(Map, Lore):
             raise OutOfBounds
             return
 
-    
         # declare list
         avaliable_move = []
 
-
         # checks cardinal directions for passability
-        if self.move_check(x,y-1) is True:
+        if self.move_check(x, y-1) is True:
             avaliable_move.append("north")
-        if self.move_check(x+1,y) is True:
+        if self.move_check(x+1, y) is True:
             avaliable_move.append("east")
-        if self.move_check(x,y+1) is True:
+        if self.move_check(x, y+1) is True:
             avaliable_move.append("south")
-        if self.move_check(x-1,y) is True:
+        if self.move_check(x-1, y) is True:
             avaliable_move.append("west")
 
         # checks if object under character can be picked up
         if self.under_char in self.pick_able:
             avaliable_move.append(f"pick")
 
-
         # checks items in inventory
         # checks for the items that can be broken by that item in the cardinal directions
         for item in self.inventory:
             if item.can_break:
                 breakable_obj = self.can_break[item.name]
-                if (self.map[y-1][x]== breakable_obj) or (self.map[y+1][x]== breakable_obj) or (self.map[y][x-1]== breakable_obj) or (self.map[y][x+1]== breakable_obj):
+                if (self.map[y-1][x] == breakable_obj) or (self.map[y+1][x] == breakable_obj) or (self.map[y][x-1] == breakable_obj) or (self.map[y][x+1] == breakable_obj):
                     avaliable_move.append("break")
-
 
         # prints moves
         print("Avaliable Moves")
@@ -358,16 +353,14 @@ class Player(Map, Lore):
             print(i)
 
         return avaliable_move
-        
-        
 
     def pick_item(self):
         """Takes item from under char to inventory
         """
         self.item_add_to_inv(self.pick_able[self.under_char])
         self.under_char = " "
-    
-    def break_item(self,x,y):
+
+    def break_item(self, x, y):
         """breaks object with item
 
         Args:
@@ -385,12 +378,14 @@ class Player(Map, Lore):
                     self.map[y][x-1] = " "
                 if self.map[y][x+1] == breakable_obj:
                     self.map[y][x+1] = " "
-                    
+
     def inventory_view(self):
         """prints inventory contents and their tags
         """
         for i in self.inventory:
-            print(f"{i.name}: {i.lore}. Quantity: {i.quantity}. Can break{i.can_break}")
+            print(
+                f"{i.name}: {i.lore}. Quantity: {i.quantity}. Can break{i.can_break}")
+
     def user_input(self):
         """takes turn input from user
 
@@ -401,7 +396,6 @@ class Player(Map, Lore):
             # while true to prevent wrong information from breaking game
             print("Turn")
             move = input("")
-
 
             # cheat codes
 
@@ -422,12 +416,11 @@ class Player(Map, Lore):
                         else:
                             break
                     try:
-                        self.move_char(x,y)
+                        self.move_char(x, y)
                     except OutOfBounds:
                         print("out of bounds")
                     else:
                         break
-
 
             # prevent empty strings
             try:
@@ -458,15 +451,11 @@ class Player(Map, Lore):
                 return "b"
                 break
 
-            
             print("unsupported move")
-
-    
 
     def turn(self):
         """Single game turn
         """
-    
 
         # prints map
         print()
@@ -475,18 +464,15 @@ class Player(Map, Lore):
         # surroundings
         print()
         print("Your Surroundings")
-        self.surrounding_describe(self.player_x,self.player_y)
-        
+        self.surrounding_describe(self.player_x, self.player_y)
 
         # inventory
         print("inventory:")
         self.inventory_view()
-        
 
         # prints avaliable moves
         print()
-        move_options = self.avaliable_moves(self.player_x,self.player_y)
-
+        move_options = self.avaliable_moves(self.player_x, self.player_y)
 
         # takes user input
         move = self.user_input()
@@ -494,24 +480,23 @@ class Player(Map, Lore):
         # legit just a switch case
         if "north" in move_options:
             if move == ("n"):
-                self.move_char(self.player_x,self.player_y-1)
+                self.move_char(self.player_x, self.player_y-1)
         if "west" in move_options:
             if move == "w":
-                self.move_char(self.player_x-1,self.player_y)
+                self.move_char(self.player_x-1, self.player_y)
         if "south" in move_options:
             if move == "s":
-                self.move_char(self.player_x,self.player_y+1)
+                self.move_char(self.player_x, self.player_y+1)
         if "east" in move_options:
-            if move ==  "e":
-                self.move_char(self.player_x+1,self.player_y)
+            if move == "e":
+                self.move_char(self.player_x+1, self.player_y)
         if "pick" in move_options:
             if move == "p":
                 self.pick_item()
         if "break" in move_options:
             if move == "b":
-                self.break_item(self.player_x,self.player_y)
+                self.break_item(self.player_x, self.player_y)
 
-        
     def level_up(self):
         """increases level
         """
@@ -521,9 +506,8 @@ class Player(Map, Lore):
         # imports new map
         self.map_import()
         # sets new player spawn location
-        self.player_x,self.player_y = self.spawn_location
-        
-    
+        self.player_x, self.player_y = self.spawn_location
+
     def play(self):
         """plays game
         """
@@ -543,11 +527,11 @@ class Player(Map, Lore):
             self.level_up()
             if self.level > self.last_level:
                 break
-            
+
             print()
             print(f"level {self.level}")
             print()
-                
+
         print("          _______                      _______  _        _ ")
         print("|\     /|(  ___  )|\     /|  |\     /|(  ___  )( (    /|( )")
         print("( \   / )| (   ) || )   ( |  | )   ( || (   ) ||  \  ( || |")
@@ -556,10 +540,6 @@ class Player(Map, Lore):
         print("   ) (   | |   | || |   | |  | || || || |   | || | \   |(_)")
         print("   | |   | (___) || (___) |  | () () || (___) || )  \  | _ ")
         print("   \_/   (_______)(_______)  (_______)(_______)|/    )_)(_)")
-                                                           
-
-
-            
 
 
 game = Player()
