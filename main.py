@@ -29,9 +29,9 @@ class Map:
 
         self.level = 1  # init level
         self.level_list = {1: "map_data\\level_1\\level1_imported.csv",
-                           2: "map_data\\level_2\\level2.csv"}  # list of levels and file paths
+                           2: "map_data\\level_2\\level2_imported.csv"}  # list of levels and file paths
 
-        self.last_level = 1
+        self.last_level = 2
 
         # declare tuples for important map locations
 
@@ -507,6 +507,7 @@ class Player(Map, Lore):
         self.map_import()
         # sets new player spawn location
         self.player_x, self.player_y = self.spawn_location
+        self.under_char = "s"
 
     def play(self):
         """plays game
@@ -519,6 +520,7 @@ class Player(Map, Lore):
         print("/_/    \_\__,_| \_/ \___|_| |_|\__|\__,_|_|  \___| ")
 
         while True:
+            print(self.level)
             while True:
                 if self.under_char == "E":
                     break
@@ -526,6 +528,7 @@ class Player(Map, Lore):
                     self.turn()
             self.level_up()
             if self.level > self.last_level:
+                print("game end")
                 break
 
             print()
